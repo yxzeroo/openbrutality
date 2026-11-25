@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Main-Class: net.minecraft.client.main.Main
+Multi-Release: false
+Add-Opens: java.base/java.lang java.base/java.io java.base/java.net ja
+ va.base/java.nio java.base/java.util java.base/java.util.concurrent j
+ ava.base/java.lang.reflect java.base/java.lang.invoke java.base/java.
+ text java.base/sun.nio.ch java.desktop/java.awt java.desktop/sun.awt
+

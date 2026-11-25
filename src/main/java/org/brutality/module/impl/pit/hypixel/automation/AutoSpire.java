@@ -1,0 +1,156 @@
+package org.brutality.module.impl.pit.hypixel.automation;
+
+import lombok.Generated;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBow;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
+import org.brutality.event.Event;
+import org.brutality.event.EventState;
+import org.brutality.event.impl.basic.BasicEvent;
+import org.brutality.event.impl.basic.BasicEvent2;
+import org.brutality.event.impl.basic.BasicEvent4;
+import org.brutality.event.impl.player.EventTick;
+import org.brutality.event.impl.player.PlayerEvent4;
+import org.brutality.module.Category;
+import org.brutality.module.Module;
+import org.brutality.module.PitCategory;
+import org.brutality.settings.Setting;
+import org.brutality.settings.impl.BooleanSetting;
+import org.brutality.settings.impl.NumberSetting;
+import org.brutality.utils.network.NetworkHelper;
+import org.brutality.utils.timer.TimerUtil;
+
+public class AutoSpire extends Module {
+    private final PitCategory pitCategory = PitCategory.AUTOMATION;
+    private final TimerUtil timerUtil = new TimerUtil();
+    private boolean flag = false;
+    private int count = -1;
+    private int count2;
+    private final NumberSetting healthSetting;
+    private final NumberSetting delaySetting;
+    private final BooleanSetting disableWhileBowSetting;
+    public static AutoSpire instance;
+    private static final long timestamp = 2130142872161221657L;
+
+    private void onEventTick(EventTick event) {
+        if (mc.thePlayer != null && mc.theWorld != null) {
+            if (!this.checkState44()) {
+                this.count = -1;
+            } else if (!this.disableWhileBowSetting.isEnabled() || !this.checkState()) {
+                if (EventState.onEvent(event)) {
+                    boolean flag = mc.thePlayer.getHealth() + mc.thePlayer.getAbsorptionAmount() <= this.healthSetting.computeDouble();
+                    if (this.flag && flag && this.timerUtil.matchesLong10((long)this.delaySetting.computeDouble())) {
+                        int n = this.computeInt();
+                        if (n != -1) {
+                            this.count = mc.thePlayer.inventory.currentItem;
+                            mc.thePlayer.inventory.currentItem = n;
+                            mc.playerController.syncCurrentPlayItem();
+                            NetworkHelper.handlePacket2(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
+                            this.count2 = mc.thePlayer.ticksExisted;
+                            this.timerUtil.reset();
+                        }
+                    }
+
+                    this.flag = flag;
+                } else if (EventState.onEvent2(event) && this.count != -1 && !mc.thePlayer.isUsingItem()) {
+                    mc.thePlayer.inventory.currentItem = this.count;
+                    mc.playerController.syncCurrentPlayItem();
+                    this.count = -1;
+                }
+            }
+        }
+    }
+
+    @Generated
+    public static AutoSpire getInstance() {
+        return instance;
+    }
+
+    public AutoSpire() {
+        super("Auto Spire", 0, Category.PIT);
+        this.count2 = (int)timestamp;
+        this.healthSetting = new NumberSetting("Health", this, 7.0, 0.0, 20.0, 1.0);
+        this.delaySetting = new NumberSetting("Delay", this, 500.0, 0.0, 5000.0, 50.0);
+        this.disableWhileBowSetting = new BooleanSetting("Disable While Bow", this, true);
+        this.handleSettingArray(new Setting[]{this.healthSetting, this.delaySetting, this.disableWhileBowSetting});
+        instance = this;
+    }
+
+    private void onBasicEvent(BasicEvent basicEvent) {
+        if (this.checkState44() && this.isCount()) {
+            basicEvent.cancel();
+        }
+    }
+
+    public boolean isCount() {
+        return this.count != -1;
+    }
+
+    private void onPlayerEvent4(PlayerEvent4 playerEvent4) {
+        if (this.checkState44() && this.isCount()) {
+            playerEvent4.cancel();
+        }
+    }
+
+    private boolean checkState() {
+        if (mc.thePlayer == null) {
+            return false;
+        }
+        ItemStack heldItem = mc.thePlayer.getHeldItem();
+        return heldItem != null && heldItem.getItem() instanceof ItemBow;
+    }
+
+    public int getCount2() {
+        return this.count2;
+    }
+
+    private void onBasicEvent4(BasicEvent4 basicEvent4) {
+        if (this.checkState44() && this.isCount()) {
+            basicEvent4.cancel();
+        }
+    }
+
+    private boolean matchesItemStack(ItemStack stack) {
+        return stack == null ? false : Item.getIdFromItem(stack.getItem()) == 378;
+    }
+
+    private void onBasicEvent2(BasicEvent2 basicEvent2) {
+        if (this.checkState44() && this.isCount()) {
+            basicEvent2.cancel();
+        }
+    }
+
+    private int computeInt() {
+        EntityPlayerSP player = this.getMc().thePlayer;
+        if (player == null) {
+            return -1;
+        }
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = player.inventory.mainInventory[i];
+            if (stack != null && this.matchesItemStack(stack)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    @Override
+    public void onEvent(Event event) {
+        if (this.checkState44()) {
+            if (event instanceof EventTick) {
+                this.onEventTick((EventTick)event);
+            } else if (event instanceof BasicEvent2) {
+                this.onBasicEvent2((BasicEvent2)event);
+            } else if (event instanceof BasicEvent4) {
+                this.onBasicEvent4((BasicEvent4)event);
+            } else if (event instanceof PlayerEvent4) {
+                this.onPlayerEvent4((PlayerEvent4)event);
+            } else if (event instanceof BasicEvent) {
+                this.onBasicEvent((BasicEvent)event);
+            }
+        }
+    }
+}

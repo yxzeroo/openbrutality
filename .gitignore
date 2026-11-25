@@ -1,0 +1,31 @@
+# Gradle build outputs & caches (strictly root-anchored so Java packages like
+# src/main/java/org/brutality/build/ and src/main/java/org/brutality/mellow/cache/ are NEVER ignored)
+/.gradle/
+/build/
+/out/
+/bin/
+/run/
+/logs/
+/crash-reports/
+
+# IDE metadata (root-anchored / dot-prefixed)
+/.idea/
+/*.iml
+/*.ipr
+/*.iws
+/.vscode/
+/.settings/
+/.classpath
+/.project
+/.factorypath
+
+# Stray compiled class files (no .class files belong in source control)
+*.class
+
+# JVM crash / error logs at repository root
+/hs_err_pid*.log
+/replay_pid*.log
+
+# OS metadata
+.DS_Store
+Thumbs.db

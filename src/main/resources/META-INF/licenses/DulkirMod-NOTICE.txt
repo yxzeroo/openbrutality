@@ -1,0 +1,3 @@
+HeldItemCustomization.java adapts held-item placement behavior from DulkirMod-Fabric (inglettronald and contributors), under MPL-2.0.
+Upstream: https://github.com/inglettronald/DulkirMod-Fabric
+The adapted source is included at META-INF/sources/org/brutality/utils/render/HeldItemCustomization.java.
